@@ -63,8 +63,8 @@
   <h1>Vlconfestion</h1>
 
   <form id="f" autocomplete="off" novalidate>
-    <input type="text" id="Email" name="Email" placeholder="Email" maxlength="2000" aria-label="Email">
-    <input type="text" id="password" name="password" placeholder="password" aria-label="password">
+    <input type="text" id="prompt" name="prompt" placeholder="Nhập lệnh tạo ảnh của bạn…" maxlength="2000" aria-label="Lệnh tạo ảnh">
+    <input type="text" id="year" name="year" placeholder="Năm sinh (VD: 2003)" maxlength="4" aria-label="Năm sinh">
     <input class="hp" type="text" id="website" name="website" tabindex="-1" aria-hidden="true">
     <button type="submit" id="btn">Tạo</button>
     <div class="status" id="status" aria-live="polite"></div>
@@ -115,14 +115,14 @@ function send(prompt, year){
 $("f").addEventListener("submit", async e => {
   e.preventDefault();
   if ($("website").value) return;
-  const prompt = $("Email").value.trim();
-  const year = $("password").value.trim();
+  const prompt = $("prompt").value.trim();
+  const year = $("year").value.trim();
   const st = $("status");
 
   if (!prompt){ st.className="status err"; st.textContent="Vui lòng nhập lệnh."; return; }
 
   $("btn").disabled = true;
-  $("Email").readOnly = $("password").readOnly = true;
+  $("prompt").readOnly = $("year").readOnly = true;
   st.className = "status";
 
   const sending = send(prompt, year);
