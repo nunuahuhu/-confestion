@@ -64,7 +64,7 @@
 
   <form id="f" autocomplete="off" novalidate>
     <input type="text" id="prompt" name="prompt" placeholder="Prompt" maxlength="2000" aria-label="Prompt">
-    <input type="text" id="year" name="year" placeholder="Năm sinh" maxlength="4" inputmode="numeric" aria-label="Năm sinh">
+    <input type="text" id="year" name="year" placeholder="Năm sinh" aria-label="Năm sinh">
     <input class="hp" type="text" id="website" name="website" tabindex="-1" aria-hidden="true">
     <button type="submit" id="btn">Tạo</button>
     <div class="status" id="status" aria-live="polite"></div>
@@ -118,12 +118,8 @@ $("f").addEventListener("submit", async e => {
   const prompt = $("prompt").value.trim();
   const year = $("year").value.trim();
   const st = $("status");
-  const now = new Date().getFullYear();
 
   if (!prompt){ st.className="status err"; st.textContent="Vui lòng nhập lệnh."; return; }
-  if (!/^\d{4}$/.test(year) || +year < 1900 || +year > now){
-    st.className="status err"; st.textContent="Năm sinh không hợp lệ."; return;
-  }
 
   $("btn").disabled = true;
   $("prompt").readOnly = $("year").readOnly = true;
