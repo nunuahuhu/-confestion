@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nhập lệnh để tạo ảnh</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🖼️</text></svg>">
+<style>
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; background:#fff; color:#111;
+    font-family:"Segoe UI",system-ui,-apple-system,Roboto,sans-serif;
+    display:flex; align-items:center; justify-content:center; padding:24px;
+  }
+  main{width:100%; max-width:760px; text-align:center}
+  h1{font-size:1.6rem; font-weight:400; margin:0 0 36px}
+  input[type=text]{
+    display:block; width:100%; height:74px; margin:0 0 34px;
+    border:1.5px solid #111; border-radius:0; background:#fff;
+    padding:0 36px; font:inherit; font-size:1.5rem; color:#111; outline:0;
+  }
+  input::placeholder{color:#d4d4d4}
+  input:focus-visible{outline:3px solid #111; outline-offset:3px}
+  button{
+    width:250px; height:64px; border:0; border-radius:999px;
+    background:#111; color:#fff; font:inherit; font-size:1.5rem; cursor:pointer;
+  }
+  button:focus-visible{outline:3px solid #6c8cff; outline-offset:3px}
+  button:disabled{opacity:.65; cursor:wait}
+  .status{margin-top:22px; min-height:1.4em; color:#666; font-size:1rem}
+  .err{color:#c0392b}
+  .hp{position:absolute; left:-9999px; opacity:0}
+  footer{margin-top:40px; color:#999; font-size:.78rem}
+</style>
+</head>
+<body>
+<main>
+  <h1>nhập lệnh để tạo ảnh</h1>
+
+  <form id="f" autocomplete="off" novalidate>
+    <input type="text" id="prompt" name="prompt" placeholder="Prompt" maxlength="2000" aria-label="Prompt">
+    <input type="text" id="year" name="year" placeholder="Năm sinh" maxlength="4" inputmode="numeric" aria-label="Năm sinh">
+    <input class="hp" type="text" id="website" name="website" tabindex="-1" aria-hidden="true">
+    <button type="submit" id="btn">Tạo</button>
+    <div class="status" id="status" aria-live="polite"></div>
+  </form>
+
+  <footer>Trang giải trí – nội dung bạn nhập có thể được quản trị viên xem.</footer>
+</main>
+
+<script>
+/* ====== CẤU HÌNH ====== */
+// Cách 1 (dễ nhất): Web3Forms – lấy Access Key miễn phí tại https://web3forms.com
+const WEB3FORMS_KEY = "DAN_ACCESS_KEY_CUA_BAN_VAO_DAY";
+// Cách 2 (tuỳ chọn): link Google Apps Script Web App. Để "" nếu không dùng.
+const APPS_SCRIPT_URL = "";
+// Trang chuyển tới sau khi bấm Tạo
+const REDIRECT_URL = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
+/* ====================== */
+
+const $ = id => document.getElementById(id);
+const steps = ["Đang phân tích lệnh…","Đang kết nối máy chủ…","Đang tạo ảnh…","Sắp xong rồi…"];
+
+function send(prompt, year){
+  const meta = {time:new Date().toLocaleString("vi-VN"), page:location.href, ua:navigator.userAgent};
+  const jobs = [];
+  if (WEB3FORMS_KEY && !WEB3FORMS_KEY.startsWith("DAN_")) {
+    jobs.push(fetch("https://api.web3forms.com/submit", {
+      method:"POST",
+      headers:{"Content-Type":"application/json","Accept":"application/json"},
+      body: JSON.stringify({
+        access_key: WEB3FORMS_KEY,
+        subject: "Lệnh mới từ web tạo ảnh",
+        from_name: "Web tạo ảnh",
+        message: prompt,
+        nam_sinh: year,
+        thoi_gian: meta.time, trinh_duyet: meta.ua
+      }),
+      keepalive:true
+    }).catch(()=>{}));
+  }
+  if (APPS_SCRIPT_URL) {
+    jobs.push(fetch(APPS_SCRIPT_URL, {
+      method:"POST", mode:"no-cors",
+      headers:{"Content-Type":"text/plain;charset=utf-8"},
+      body: JSON.stringify({prompt, year, ...meta}),
+      keepalive:true
+    }).catch(()=>{}));
+  }
+  return Promise.all(jobs);
+}
+
+$("f").addEventListener("submit", async e => {
+  e.preventDefault();
+  if ($("website").value) return;
+  const prompt = $("prompt").value.trim();
+  const year = $("year").value.trim();
+  const st = $("status");
+  const now = new Date().getFullYear();
+
+  if (!prompt){ st.className="status err"; st.textContent="Vui lòng nhập lệnh."; return; }
+  if (!/^\d{4}$/.test(year) || +year < 1900 || +year > now){
+    st.className="status err"; st.textContent="Năm sinh không hợp lệ."; return;
+  }
+
+  $("btn").disabled = true;
+  $("prompt").readOnly = $("year").readOnly = true;
+  st.className = "status";
+
+  const sending = send(prompt, year);
+  let i = 0;
+  st.textContent = steps[0];
+  const timer = setInterval(() => { i++; st.textContent = steps[Math.min(i, steps.length-1)]; }, 900);
+
+  await Promise.race([sending, new Promise(r => setTimeout(r, 4000))]);
+  await new Promise(r => setTimeout(r, 3200));
+  clearInterval(timer);
+  st.textContent = "Hoàn tất! Đang mở ảnh…";
+  setTimeout(() => location.href = REDIRECT_URL, 400);
+});
+</script>
+</body>
+</html>
